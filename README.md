@@ -1,3 +1,3 @@
-# HetCounter
+### HetCounter
 
-# Counts heterozygous positions for all samples in a VCF file. 
+#### Counts heterozygous positions for all samples in a VCF file. 
