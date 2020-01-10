@@ -91,8 +91,8 @@ for rawline in file_handle:
 
 	elif header:
 		
-		temp = re.split('\t', line)			
-		new_header = "Window\tTotal_SNPs\tVCF_line\t" + '\t'.join(temp[9:])
+		samples = '\t'.join(re.split('\t', line)[9:])
+		new_header = "Window\tTotal_SNPs\tVCF_line\t{}\n".format(samples)
 
 	else:											 
 
@@ -131,17 +131,21 @@ for rawline in file_handle:
 				W_left_position = W_length - W_length
 				W_step = W_length
 
-			file_name = out_dir_path + "/" + str(chr_in_file) + "_window_" + str(W_length) + "_het_stats.tab"
-			with open("list_window_" + str(W_length) + "_het_stats_files.tab", 'a') as out_list:
-			    out_list.write(file_name + '\t' + str(chr_in_file) + '\n')
+			file_name = "{}/{}_window_{}_het_stats.tab".format(out_dir_path, chr_in_file, W_length)
+			# out_dir_path + "/" + str(chr_in_file) + "_window_" + str(W_length) + "_het_stats.tab"
+			with open("list_window_{}_het_stats_files.tab".format(W_length), 'a') as out_list:
+			# with open("list_window_" + str(W_length) + "_het_stats_files.tab", 'a') as out_list:
+			    out_list.write("{}\t{}\n".format(file_name, chr_in_file))
+			    # out_list.write(file_name + '\t' + str(chr_in_file) + '\n')
 			out_list.close()
 
 			out = open(file_name, 'w')
-			out.write(new_header + '\n')
+			# out.write(new_header + '\n')
+			out.write(new_header)
 
 			num_samples = len(field_line)-9
 
-			list_counters = [float(0.0)] * num_samples
+			list_counters = [int(0)] * num_samples
 			counter_string = '\t'.join(str(value) for value in list_counters)
 			flag_FIRST_LINE = False
 
@@ -168,7 +172,9 @@ for rawline in file_handle:
 
 			if int(field_line[1]) > W_right_position and flag_HEAD_WINDOWS == True:
 
-				out.write(str(W_right_position) + '\t' + str(SNPs_per_window_counter) + '\t' + str(total_VCF_positions) + '\t' + counter_string + '\n')
+				out.write("{}\t{}\t{}\t{}\n".format(W_right_position, SNPs_per_window_counter, total_VCF_positions, counter_string))
+					# str(W_right_position) + '\t' + str(SNPs_per_window_counter) + '\t' + str(total_VCF_positions) + '\t' + counter_string + '\n')
+				# out.write(str(W_right_position) + '\t' + str(SNPs_per_window_counter) + '\t' + str(total_VCF_positions) + '\t' + counter_string + '\n')
 				W_right_position += W_step
 				W_left_position += W_step
 				window_counter += 1
@@ -199,7 +205,7 @@ for rawline in file_handle:
 
 					elif genotype[0] != genotype[1]:		
 
-						list_counters[sample] += 1.0
+						list_counters[sample] += 1
 				
 				SNPs_per_window_counter += 1
 				total_VCF_positions += 1				
@@ -210,9 +216,11 @@ for rawline in file_handle:
 			elif int(field_line[1]) >= W_right_position and int(field_line[1]) <= chromosome_size: # saving equal to chrom size or "incomplete" final windows for last 
 
 				counter_string = '\t'.join(str(value) for value in list_counters)
-				out.write(str(W_right_position) + '\t' + str(SNPs_per_window_counter) + '\t' + str(total_VCF_positions) + '\t' + counter_string + '\n')
+				# out.write(str(W_right_position) + '\t' + str(SNPs_per_window_counter) + '\t' + str(total_VCF_positions) + '\t' + counter_string + '\n')
+				out.write("{}\t{}\t{}\t{}\n".format(W_right_position, SNPs_per_window_counter, total_VCF_positions, counter_string))
+				# str(W_right_position) + '\t' + str(SNPs_per_window_counter) + '\t' + str(total_VCF_positions) + '\t' + counter_string + '\n')
 				# print str(W_right_position) + '\t' + str(SNPs_per_window_counter) + '\t' + str(total_VCF_positions) + '\t' + counter_string + '\n'
-				list_counters = [float(0.0)] * num_samples
+				list_counters = [int(0)] * num_samples
 				SNPs_per_window_counter = 0
 				W_right_position += W_step
 				W_left_position += W_step
@@ -226,10 +234,12 @@ except:
 	pass
 
 counter_string = '\t'.join(str(value) for value in list_counters)
-out.write(str(W_right_position) + '\t' + str(SNPs_per_window_counter) + '\t' + str(total_VCF_positions) + '\t' + counter_string + '\n')
+out.write("{}\t{}\t{}\t{}\n".format(W_right_position, SNPs_per_window_counter, total_VCF_positions, counter_string))
+# str(W_right_position) + '\t' + str(SNPs_per_window_counter) + '\t' + str(total_VCF_positions) + '\t' + counter_string + '\n')
+# out.write(str(W_right_position) + '\t' + str(SNPs_per_window_counter) + '\t' + str(total_VCF_positions) + '\t' + counter_string + '\n')
 # print str(chromosome_size) + '\t' + str(SNPs_per_window_counter) + '\t' + str(total_VCF_positions) + '\t' + counter_string + '\n'
 
-list_counters = [float(0.0)] * num_samples
+list_counters = [int(0)] * num_samples
 counter_string = '\t'.join(str(value) for value in list_counters)
 SNPs_per_window_counter = 0
 # total_VCF_positions = 0
@@ -242,21 +252,24 @@ if W_length != "all":
 		window_counter += 1
 		if W_right_position > chromosome_size:
 			# print "Aqui\t" + str(chromosome_size)
-			out.write(str(chromosome_size) + '\t' + str(SNPs_per_window_counter) + '\t' + str(total_VCF_positions) + '\t' + counter_string + '\n')
+			out.write("{}\t{}\t{}\t{}\n".format(chromosome_size, SNPs_per_window_counter, total_VCF_positions, counter_string))
+			# str(chromosome_size) + '\t' + str(SNPs_per_window_counter) + '\t' + str(total_VCF_positions) + '\t' + counter_string + '\n')
+			# out.write(str(chromosome_size) + '\t' + str(SNPs_per_window_counter) + '\t' + str(total_VCF_positions) + '\t' + counter_string + '\n')
 			# print str(chromosome_size) + '\t' + str(SNPs_per_window_counter) + '\t' + str(total_VCF_positions) + '\t' + counter_string + '\n'
 		else:
-			out.write(str(W_right_position) + '\t' + str(SNPs_per_window_counter) + '\t' + str(total_VCF_positions) + '\t' + counter_string + '\n')
+			out.write("{}\t{}\t{}\t{}\n".format(W_right_position, SNPs_per_window_counter, total_VCF_positions, counter_string))
+			# out.write(str(W_right_position) + '\t' + str(SNPs_per_window_counter) + '\t' + str(total_VCF_positions) + '\t' + counter_string + '\n')
 			# print str(W_right_position) + '\t' + str(SNPs_per_window_counter) + '\t' + str(total_VCF_positions) + '\t' + counter_string + '\n'
 
 out.close()
 
-print("file: " + str(input_file))
-print("chromosome: " + str(chr_in_file))
-print("chromosome size: " + str(chromosome_size))
-print("window size: " + str(W_step))
-print("windows total number: " + str(window_counter))
-print("VCF positions total: " + str(total_VCF_positions))
-print("SNPs total: " + str(biallelic_SNPs_counter))
+print("file: {}".format(input_file))
+print("chromosome: {}".format(chr_in_file))
+print("chromosome size: {}".format(chromosome_size))
+print("window size: {}".format(W_step))
+print("windows total number: {}".format(window_counter))
+print("VCF positions total: {}".format(total_VCF_positions))
+print("SNPs total: {}".format(biallelic_SNPs_counter))
 
 if flag_haploids:
 	print("\n\nWarning mesage: There are haploid genotypes in the dataset\n")
