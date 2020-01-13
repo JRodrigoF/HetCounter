@@ -127,6 +127,7 @@ for rawline in file_handle:
 
 			else:
 
+				W_length = int(W_length)
 				W_right_position = W_length
 				W_left_position = W_length - W_length
 				W_step = W_length
